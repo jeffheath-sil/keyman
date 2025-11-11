@@ -159,16 +159,6 @@ export class ContextTokenization {
   }
 
   /**
-   * Returns plain-text strings representing the most probable representation for all
-   * tokens represented by this tokenization instance.
-   *
-   * Intended for debugging use only.
-   */
-  get sourceText() {
-    return this.tokens.map(token => token.sourceText);
-  }
-
-  /**
    * Returns a plain-text string representing the most probable representation for all
    * tokens represented by this tokenization instance.
    */
@@ -595,7 +585,14 @@ export class ContextTokenization {
       if(affectedToken.inputCount == 0 && distribution[0].sample.deleteLeft != 0) {
         distribution = distribution.map((mass) => ({sample: { ...mass.sample, deleteLeft: 0 }, p: mass.p }));
       }
-      affectedToken.addInput({trueTransform: sourceInput, inputStartIndex: appliedLength, bestProbFromSet}, distribution);
+      affectedToken.addInput({
+        segment: {
+          trueTransform: sourceInput,
+          transitionId: sourceInput.id,
+          start: appliedLength
+        },
+        bestProbFromSet: bestProbFromSet
+      }, distribution);
       appliedLength += KMWString.length(distribution[0].sample.insert);
 
       const tokenize = determineModelTokenizer(lexicalModel);
